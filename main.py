@@ -296,6 +296,8 @@ def custom_tokenizer(text):
 def run_ablation(df, queries):
     """
     Runs an ablation study to compare different text processing pipelines.
+    Returns:
+        list: List of tuples (pipeline_name, mean_map)
     """
     print("\n=== Running Ablation Study (Task 6) ===")
     
@@ -333,11 +335,7 @@ def run_ablation(df, queries):
         mean_map = np.mean(map_scores)
         results_table.append((name, mean_map))
         
-    print("\n--- Ablation Results (MAP) ---")
-    print(f"{'Pipeline':<25} | {'MAP':<10}")
-    print("-" * 37)
-    for name, score in results_table:
-        print(f"{name:<25} | {score:.4f}")
+    return results_table
 
 # ==========================================
 # MAIN EXECUTION
@@ -360,11 +358,11 @@ def main():
     
     # 4. Run Queries & Evaluate & Rocchio (Tasks 3, 4, 5)
     print("\n=== Executing Queries (Standard vs Rocchio) ===")
-    print(f"{'Query':<30} | {'P@10 (Base)':<12} | {'P@10 (Rocchio)':<12}")
-    print("-" * 60)
     
     map_base_scores = []
     map_rocchio_scores = []
+    
+    query_results_data = []
 
     for q in QUERIES:
         # -- A. Standard Search --
@@ -392,14 +390,35 @@ def main():
         p10_rocchio, ap_rocchio = calculate_metrics(results_rocchio, q, df, k=TOP_K_RESULTS)
         map_rocchio_scores.append(ap_rocchio)
         
-        print(f"{q[:30]:<30} | {p10_base:.4f}       | {p10_rocchio:.4f}")
+        query_results_data.append({
+            "Query": q,
+            "P@10 (Base)": p10_base,
+            "P@10 (Rocchio)": p10_rocchio
+        })
 
-    print("-" * 60)
-    print(f"Mean Average Precision (MAP) Base:    {np.mean(map_base_scores):.4f}")
-    print(f"Mean Average Precision (MAP) Rocchio: {np.mean(map_rocchio_scores):.4f}")
+    # Save Query Results to CSV
+    df_query_results = pd.DataFrame(query_results_data)
+    df_query_results.to_csv("query_results.csv", index=False)
+    print("Saved query_results.csv")
+
+    # Save Overall Metrics to CSV
+    mean_map_base = np.mean(map_base_scores)
+    mean_map_rocchio = np.mean(map_rocchio_scores)
+    
+    df_overall = pd.DataFrame([
+        {"Metric": "Mean Average Precision (MAP) Base", "Value": mean_map_base},
+        {"Metric": "Mean Average Precision (MAP) Rocchio", "Value": mean_map_rocchio}
+    ])
+    df_overall.to_csv("overall_metrics.csv", index=False)
+    print("Saved overall_metrics.csv")
     
     # 5. Ablation Study (Task 6)
-    run_ablation(df, QUERIES)
+    ablation_data = run_ablation(df, QUERIES)
+    
+    # Save Ablation Results to CSV
+    df_ablation = pd.DataFrame(ablation_data, columns=["Pipeline", "MAP"])
+    df_ablation.to_csv("ablation_results.csv", index=False)
+    print("Saved ablation_results.csv")
 
 if __name__ == "__main__":
     main()
