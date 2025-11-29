@@ -96,4 +96,3 @@ python main.py
 L3 IMM - ISAMM  
 *Techniques d'Indexation et de Référencement*  
 **2025-2026**
-```
