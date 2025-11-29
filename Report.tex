@@ -1,0 +1,405 @@
+\documentclass[a4paper,11pt]{article}
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES
+%----------------------------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{listings} % For code display
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{colortbl} % Required for colored table rows
+\usepackage[most]{tcolorbox} % For colorful boxes
+
+%----------------------------------------------------------------------------------------
+%	COLORS & STYLING
+%----------------------------------------------------------------------------------------
+\geometry{top=2.5cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% Professional Color Palette
+\definecolor{primary}{RGB}{44, 62, 80}       % Dark Slate Blue
+\definecolor{secondary}{RGB}{231, 76, 60}    % Alizarin Red (Accent)
+\definecolor{tertiary}{RGB}{52, 152, 219}    % Peter River Blue
+\definecolor{codebg}{RGB}{245, 245, 245}     % Light Gray for code blocks
+\definecolor{success}{RGB}{39, 174, 96}      % Green for insights
+
+% Python Code Style
+\lstdefinestyle{pythonstyle}{
+    backgroundcolor=\color{codebg},   
+    commentstyle=\color{gray}\itshape,
+    keywordstyle=\color{purple}\bfseries,
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{success},
+    basicstyle=\ttfamily\footnotesize\color{black},
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4,
+    frame=l,
+    rulecolor=\color{tertiary}
+}
+\lstset{style=pythonstyle}
+
+% Box Styles
+\newtcolorbox{codebox}[2][]{
+    enhanced,
+    colback=white,
+    colframe=tertiary,
+    coltitle=white,
+    title=\textbf{#2},
+    attach boxed title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=tertiary, rounded corners},
+    sharp corners=downhill,
+    arc=3mm,
+    drop shadow,
+    #1
+}
+
+\newtcolorbox{analysisbox}[2][]{
+    enhanced,
+    colback=white,
+    colframe=primary,
+    coltitle=white,
+    title=\textbf{#2},
+    attach boxed title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=primary, rounded corners},
+    sharp corners=downhill,
+    arc=3mm,
+    drop shadow,
+    #1
+}
+
+% Hyperlinks
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    filecolor=magenta,      
+    urlcolor=tertiary,
+}
+
+% Header/Footer
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{primary}{\textbf{Scientific Abstracts Retrieval}}}
+\rhead{\textcolor{secondary}{Mini-Project 2}}
+\cfoot{\thepage}
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT START
+%----------------------------------------------------------------------------------------
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    {\Large \textsc{Manouba University} \\ ISAMM - 3IM}
+    
+    \vspace{1.5cm}
+    
+    % The Logo
+    \includegraphics[width=0.35\textwidth]{ir_logo.png}
+    
+    \vspace{1.5cm}
+    {\color{tertiary}\hrule height 2pt}
+    \vspace{0.5cm}
+    
+    {\Huge \textbf{\textcolor{primary}{Mini-Project 2}}} \\
+    \vspace{0.5cm}
+    {\huge \textbf{Scientific Abstracts Retrieval (arXiv)}}
+    
+    \vspace{0.5cm}
+    {\color{tertiary}\hrule height 2pt}
+    \vspace{2cm}
+    
+    % --- FIXED ALIGNMENT SECTION ---
+    \begin{minipage}[t]{0.45\textwidth} 
+        \begin{flushleft} \large
+            \emph{Submitted by:}\\
+            \textbf{Mohamed Ayacha}\\
+            \textbf{Ahmed Kchouk}\\ 
+            \vspace{2mm}
+            \texttt{3IM1}
+        \end{flushleft}
+    \end{minipage}
+    \hfill 
+    \begin{minipage}[t]{0.45\textwidth} 
+        \begin{flushright} \large
+            \emph{Course:}\\
+            \textbf{Indexing and Referencing}\\
+            \textbf{Techniques}
+        \end{flushright}
+    \end{minipage}
+    % -------------------------------
+
+    \vfill
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1: INTRODUCTION
+%----------------------------------------------------------------------------------------
+\section{\textcolor{primary}{Introduction}}
+The objective of this project is to build an Information Retrieval (IR) system capable of indexing, searching, and ranking scientific papers from the arXiv dataset. The system utilizes the \textbf{Vector Space Model (VSM)} with TF-IDF weighting and implements advanced features such as \textbf{Relevance Feedback (Rocchio Algorithm)} and an \textbf{Ablation Study} to evaluate preprocessing impacts.
+
+The core implementation is done in Python using \texttt{scikit-learn}, \texttt{nltk}, and \texttt{pandas}.
+
+%----------------------------------------------------------------------------------------
+%	SECTION 2: IMPLEMENTATION LOGIC
+%----------------------------------------------------------------------------------------
+\section{\textcolor{primary}{Implementation Logic}}
+
+The source code (\texttt{main.py}) is structured into modular tasks. Below is an explanation of the critical sections.
+
+\subsection{Preprocessing and Vectorization}
+The text data is prepared by combining the paper's title and abstract. We use \texttt{TfidfVectorizer} to convert text into numerical vectors.
+
+\begin{codebox}{TF-IDF Vectorization Logic}
+\begin{lstlisting}[language=Python]
+# Standard configuration: English stopwords, min document frequency of 3
+# This removes very rare words (noise) and common function words.
+vec = TfidfVectorizer(stop_words='english', min_df=3)
+X = vec.fit_transform(docs)
+\end{lstlisting}
+\end{codebox}
+
+\textbf{Explanation:} 
+\begin{itemize}
+    \item \texttt{min\_df=3}: Terms appearing in fewer than 3 documents are ignored to reduce vocabulary size and avoid overfitting on typos.
+    \item \texttt{stop\_words='english'}: Filters out words like "the", "is", "at".
+\end{itemize}
+
+\subsection{Search Engine (Cosine Similarity)}
+Ranking is performed by calculating the cosine similarity between the query vector and all document vectors.
+
+\begin{codebox}{Search Function (from lines 143-167)}
+\begin{lstlisting}[language=Python]
+def perform_search(query, vectorizer, X, k=TOP_K_RESULTS):
+    # Convert query to the same TF-IDF vector space
+    query_vec = vectorizer.transform([query])
+    
+    # Calculate cosine similarity (Dot product of normalized vectors)
+    similarities = cosine_similarity(query_vec, X).ravel()
+    
+    # Get indices of the top k documents (sorted descending)
+    top_indices = np.argsort(similarities)[::-1][:k]
+    
+    return list(zip(top_indices, similarities[top_indices]))
+\end{lstlisting}
+\end{codebox}
+
+\subsection{Relevance Feedback (Rocchio Algorithm)}
+The system improves query formulation using the Rocchio algorithm. It adjusts the query vector by moving it closer to relevant documents and further from non-relevant ones.
+
+\begin{codebox}{Rocchio Implementation (from lines 236-281)}
+\begin{lstlisting}[language=Python]
+def rocchio_update(query_vec, X, top_indices, doc_categories, query_text):
+    # Standard Weights
+    # alpha=1.0 (Keep original query)
+    # beta=0.75 (Move towards relevant)
+    # gamma=0.15 (Move away from non-relevant)
+    
+    q_new = ROCCHIO_ALPHA * query_vec
+    
+    if relevant_indices:
+        Dpos = X[relevant_indices]
+        mean_pos = np.array(Dpos.mean(axis=0))
+        q_new = q_new + ROCCHIO_BETA * mean_pos
+        
+    if non_relevant_indices:
+        Dneg = X[non_relevant_indices]
+        mean_neg = np.array(Dneg.mean(axis=0))
+        q_new = q_new - ROCCHIO_GAMMA * mean_neg
+        
+    # Rectify: Ensure no negative values (TF-IDF cannot be negative)
+    q_new[q_new < 0] = 0
+    return q_new
+\end{lstlisting}
+\end{codebox}
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	SECTION 3: EXPERIMENTAL RESULTS
+%----------------------------------------------------------------------------------------
+\section{\textcolor{primary}{Experimental Results}}
+
+The following results were obtained by executing the system on the dataset. The vocabulary size reached \textbf{12,814} distinct terms.
+
+\subsection{Retrieval Performance: Base vs. Rocchio}
+The table below compares the Precision at 10 (P@10) of the standard TF-IDF model against the Rocchio Feedback model for our 8 test queries.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{l c c}
+        \toprule
+        \rowcolor{primary!10} \textbf{Query} & \textbf{P@10 (Base)} & \textbf{P@10 (Rocchio)} \\
+        \midrule
+        Quantum field theory & 0.70 & \textbf{0.70} \\
+        Semiconductor laser & 0.20 & \textbf{0.20} \\
+        Graph neural network & 0.10 & \textbf{0.20} \\
+        Cosmic microwave background & 0.80 & \textbf{0.80} \\
+        Optical cavity & 0.80 & \textbf{0.80} \\
+        Spintronics & 0.00 & \textbf{0.00} \\
+        Superconducting qubits & 0.50 & \textbf{0.60} \\
+        Photonic integrated circuits & 0.40 & \textbf{0.50} \\
+        \midrule
+        \rowcolor{secondary!10} \textbf{Mean Average Precision (MAP)} & \textbf{0.4919} & \textbf{0.7766} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Comparison of Standard Search vs Rocchio Feedback}
+\end{table}
+
+\textbf{Observation:} The Rocchio algorithm significantly improved the MAP score from \textbf{0.4919} to \textbf{0.7766}. It successfully improved P@10 for queries like "Graph neural network" and "Superconducting qubits" by identifying latent relevant terms.
+
+\subsection{Ablation Study: Text Preprocessing}
+We evaluated four different preprocessing pipelines to understand the impact of stopword removal and stemming.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{l l}
+        \toprule
+        \rowcolor{primary!10} \textbf{Pipeline Configuration} & \textbf{MAP Score} \\
+        \midrule
+        \textbf{No Stopwords, No Stemming} & \textbf{0.5350} \\
+        With Stopwords, No Stemming & 0.4919 \\
+        No Stopwords, With Stemming & 0.4579 \\
+        With Stopwords, With Stemming & 0.4506 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Ablation Study Results}
+\end{table}
+
+\textbf{Observation:} Surprisingly, the raw pipeline ("No Stop, No Stem") performed best with a MAP of \textbf{0.5350}. This suggests that for this specific scientific corpus, exact term matching is more effective than stemming, and some common words might carry specific meaning in titles.
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	SECTION 4: ANALYSIS QUESTIONS
+%----------------------------------------------------------------------------------------
+\section{\textcolor{primary}{Analysis \& Questions}}
+\label{sec:analysis}
+
+Below are the answers to the 10 specific analysis questions, based on the execution results.
+
+% Q1
+\begin{analysisbox}{1. Define relevance and its limits}
+In this project, relevance is defined via a \textbf{Category Proxy} (implemented in \texttt{is\_relevant}). A document is "relevant" if its metadata category matches the query's target domain (e.g., "Quantum" $\rightarrow$ \texttt{quant-ph}).
+\vspace{2mm} \\
+\textbf{Limits:} This is a binary, rigid definition. It ignores the degree of relevance and can generate False Negatives if a relevant paper is simply categorized under a broader tag like \texttt{physics.gen-ph}.
+\end{analysisbox}
+
+% Q2
+\begin{analysisbox}{2. Dominant Categories for Key Queries}
+Based on the dataset distribution:
+\begin{enumerate}
+    \item \textbf{Query: "Quantum field theory"} $\rightarrow$ Dominant: \texttt{hep-th} (High Energy Physics - Theory).
+    \item \textbf{Query: "Graph neural network"} $\rightarrow$ Dominant: \texttt{cs.LG} (Machine Learning).
+\end{enumerate}
+\end{analysisbox}
+
+% Q3
+\begin{analysisbox}{3. Best MAP Configuration}
+Based on the experimental results in Section 3.2, the configuration "No Stopwords, No Stemming" yields the best MAP (0.5350).
+\vspace{2mm} \\
+\textbf{Justification:} In highly technical scientific corpora, exact terminology is crucial. Stemming (e.g., changing "learning" to "learn") might lose specific semantic nuances required to differentiate between a general discussion and a specific methodology.
+\end{analysisbox}
+
+% Q4
+\begin{analysisbox}{4. Average effect of Rocchio}
+Rocchio provided a massive improvement in our experiment. The MAP score jumped from 0.4919 to 0.7766.
+\vspace{2mm} \\
+This confirms that the initial query vectors were often "near" relevant documents but needed the centroid adjustment ($\beta=0.75$) to fully capture the cluster of relevant papers.
+\end{analysisbox}
+
+% Q5
+\begin{analysisbox}{5. Recurring False Positives}
+\begin{enumerate}
+    \item \textbf{For "Semiconductor laser":} Papers on \textit{fabrication}. They contain "semiconductor" and "laser" as tools, not the subject.
+    \item \textbf{For "Graph neural network":} Papers in \textit{Computer Vision}. They use "neural networks" and mention "graphs" (plots), confusing the Bag-of-Words model.
+\end{enumerate}
+\end{analysisbox}
+
+% Q6
+\begin{analysisbox}{6. Two Simple Improvement Ideas}
+\begin{enumerate}
+    \item \textbf{N-Grams:} Configure \texttt{ngram\_range=(1,2)} to capture "neural network" as a single token rather than two separate words.
+    \item \textbf{BM25:} Replace TF-IDF with Okapi BM25 to better handle term saturation and document length normalization.
+\end{enumerate}
+\end{analysisbox}
+
+% Q7
+\begin{analysisbox}{7. Count vs TF-IDF Differences}
+\textbf{Count Vectorizer} is biased towards long documents and common words.
+\vspace{2mm} \\
+\textbf{TF-IDF} penalizes common words (via IDF). It highlights discriminative terms like "Spintronics" or "Qubit", making them the primary drivers of the ranking score.
+\end{analysisbox}
+
+% Q8
+\begin{analysisbox}{8. Impact of min\_df}
+We used \texttt{min\_df=3}.
+\begin{itemize}
+    \item \textbf{Vocabulary:} Reduced to 12,814 terms, removing unique typos/noise.
+    \item \textbf{MAP:} Improves stability. By removing terms that appear in only 1 or 2 documents, we prevent overfitting to random noise matches.
+\end{itemize}
+\end{analysisbox}
+
+% Q9
+\begin{analysisbox}{9. Three Salient TF-IDF Terms}
+\begin{enumerate}
+    \item \textbf{"Qubit"}: High IDF. Strongest discriminator for Quantum Physics.
+    \item \textbf{"Optimization"}: Medium IDF. Distinguishes applied CS papers from theoretical ones.
+    \item \textbf{"Algorithm"}: Medium IDF. A pivot term signaling methodological papers.
+\end{enumerate}
+\end{analysisbox}
+
+% Q10
+\begin{analysisbox}{10. Limitations of Vector Space Model}
+\begin{enumerate}
+    \item \textbf{Bag of Words:} Word order is lost ("Science of Computers" = "Computers of Science").
+    \item \textbf{Semantic Gap:} Cannot handle synonyms (e.g., "Cosmos" vs "Universe").
+    \item \textbf{Sparsity:} Matrices are huge and computationally expensive.
+\end{enumerate}
+\end{analysisbox}
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	SECTION 5: CONCLUSION
+%----------------------------------------------------------------------------------------
+\section{\textcolor{primary}{General Conclusion}}
+
+This project successfully demonstrated the implementation and evaluation of a complete Information Retrieval system based on the Vector Space Model (VSM). Through the indexing of 10,000 arXiv scientific abstracts, several key insights were established regarding text retrieval in specialized domains.
+
+\subsection*{Key Findings}
+\begin{itemize}
+    \item \textbf{Relevance Feedback Efficacy:} The implementation of the \textbf{Rocchio algorithm} was the most significant factor in performance improvement. It raised the Mean Average Precision (MAP) from a baseline of \textbf{0.4919} to \textbf{0.7766}. This proves that mathematically expanding the query using the centroid of retrieved documents is highly effective for scientific literature.
+    
+    \item \textbf{Preprocessing Nuances:} Contrary to general expectations, the Ablation Study revealed that a raw pipeline (No Stopwords, No Stemming) performed best (\textbf{MAP 0.5350}) for this specific dataset. This suggests that in dense scientific abstracts, specific technical forms of words carry precise meaning that stemming might obscure.
+\end{itemize}
+
+\subsection*{Limitations and Future Work}
+Despite the successes, the analysis revealed inherent limitations in the Bag-of-Words approach. The loss of syntactic structure led to false positives in polysemous queries (e.g., distinguishing "graph" in plotting vs. graph theory).
+\\ \\
+Future iterations of this system would benefit from implementing N-gram indexing to capture phrases (like "neural network") or transitioning to semantic models like BERT to better understand context beyond simple keyword matching.
+
+\end{document}
