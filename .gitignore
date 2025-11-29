@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data (keep sample, ignore large raw files if desired, but for now we keep them as per structure)
+# data/arxiv-metadata-oai-snapshot.json 
+
+# Results
+# results/
+
+# VS Code
+.vscode/
+
+# Environment
+.env
+venv/
+env/
