@@ -91,11 +91,8 @@ python main.py
 
 **Insight:** For this specific scientific corpus, raw terms (without stemming) provided better precision than stemmed terms, likely because scientific terminology requires exact matches.
 
----
-
 ## 👥 Authors
 **Mohamed Ayacha & Ahmed Kchouk**  
 L3 IMM - ISAMM  
 *Techniques d'Indexation et de Référencement*  
 **2025-2026**
-```
